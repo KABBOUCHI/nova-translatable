@@ -2,11 +2,13 @@
 
 namespace Kabbouchi\NovaTranslatable;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Nova\Events\ServingNova;
 use Laravel\Nova\Fields\Field;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Textarea;
+use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Nova;
 
 class FieldServiceProvider extends ServiceProvider
@@ -40,7 +42,9 @@ class FieldServiceProvider extends ServiceProvider
 
 
 				$field->resolveUsing (function ($value) use ($field) {
-					return $value;//$resource->getTranslations($attribute);
+					/** @var  NovaRequest $request */
+					$request = resolve(NovaRequest::class);
+					return $request->findResourceOrFail()->getTranslations($field->attribute);
 				});
 
 				return $field;

@@ -18,24 +18,35 @@ class FieldServiceProvider extends ServiceProvider
 	 */
 	public function boot()
 	{
+
 		Nova::serving(function (ServingNova $event) {
+
 			Nova::script('nova-translatable', __DIR__ . '/../dist/js/field.js');
 			Nova::style('nova-translatable', __DIR__ . '/../dist/css/field.css');
 
 			Field::macro('translatable', function ($config = []) {
-				if ($this instanceof Text)
-					$this->component = 'translatable-text';
+				/** @var Field $field */
+				$field = $this;
+				if ($field instanceof Text)
+					$field->component = 'translatable-text';
 
-				if ($this instanceof Textarea)
-					$this->component = 'translatable-textarea';
+				if ($field instanceof Textarea)
+					$field->component = 'translatable-textarea';
 
-				$this->withMeta(array_merge([
+				$field->withMeta(array_merge([
 					'locales'     => config('translatable.locales') ?? ['en' => 'English'],
 					'indexLocale' => app()->getLocale()
 				], $config));
 
-				return $this;
+
+				$field->resolveUsing (function ($value) use ($field) {
+					return $value;//$resource->getTranslations($attribute);
+				});
+
+				return $field;
 			});
+
+
 		});
 	}
 
